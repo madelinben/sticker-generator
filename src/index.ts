@@ -1,5 +1,5 @@
-export { StickersApp } from "./StickersApp";
 export { HANDOFF_KEY, type Handoff } from "./lib/handoff";
+export { StickersApp } from "./StickersApp";
 
 export const meta = {
   id: "stickers",

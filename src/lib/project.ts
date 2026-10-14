@@ -10,7 +10,12 @@ export function fitTrack(pts: TrackPoint[], box: Box): [number, number][] {
   const xy = pts.map((p): [number, number] => [p.lon * k, -p.lat]);
   const xs = xy.map((p) => p[0]);
   const ys = xy.map((p) => p[1]);
-  const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const [minX, maxX, minY, maxY] = [
+    Math.min(...xs),
+    Math.max(...xs),
+    Math.min(...ys),
+    Math.max(...ys),
+  ];
   const spanX = maxX - minX || 1e-9;
   const spanY = maxY - minY || 1e-9;
   const scale = Math.min(box.w / spanX, box.h / spanY);

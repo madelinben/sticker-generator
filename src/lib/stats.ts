@@ -8,7 +8,8 @@ const rad = (d: number) => (d * Math.PI) / 180;
 export function haversine(a: TrackPoint, b: TrackPoint): number {
   const dLat = rad(b.lat - a.lat);
   const dLon = rad(b.lon - a.lon);
-  const h = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
   return 2 * R * Math.asin(Math.sqrt(h));
 }
 
@@ -39,7 +40,9 @@ export function formatDuration(s: number): string {
   const h = Math.floor(s / 3600);
   const m = Math.floor((s % 3600) / 60);
   const sec = Math.round(s % 60);
-  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}` : `${m}:${String(sec).padStart(2, "0")}`;
+  return h > 0
+    ? `${h}:${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`
+    : `${m}:${String(sec).padStart(2, "0")}`;
 }
 
 /** min/km, e.g. "5:30 /km"; null when distance or time is missing. */
@@ -65,6 +68,7 @@ const CLIMB_BADGES: [number, string][] = [
 /** Highest distance badge reached plus highest climb badge reached. */
 export function achievements(s: Stats): string[] {
   const dist = DISTANCE_BADGES.find(([min]) => s.distanceM >= min)?.[1];
-  const climb = s.elevGainM === null ? undefined : CLIMB_BADGES.find(([min]) => s.elevGainM! >= min)?.[1];
+  const gain = s.elevGainM;
+  const climb = gain === null ? undefined : CLIMB_BADGES.find(([min]) => gain >= min)?.[1];
   return [dist, climb].filter((b): b is string => b !== undefined);
 }

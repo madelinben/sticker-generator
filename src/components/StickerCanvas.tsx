@@ -3,9 +3,15 @@ import { useEffect, useRef, useState } from "react";
 import { drawSticker, type StickerSpec } from "../lib/draw";
 
 const toBlob = (canvas: HTMLCanvasElement) =>
-  new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("render failed"))), "image/png"));
+  new Promise<Blob>((resolve, reject) =>
+    canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("render failed"))), "image/png")
+  );
 
-const slug = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "sticker";
+const slug = (s: string) =>
+  s
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "") || "sticker";
 
 export function StickerCanvas({ spec }: { spec: StickerSpec }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -25,12 +31,16 @@ export function StickerCanvas({ spec }: { spec: StickerSpec }) {
   }
 
   const png = async () => toBlob(ref.current as HTMLCanvasElement);
-  const file = async () => new File([await png()], `${slug(spec.title)}.png`, { type: "image/png" });
+  const file = async () =>
+    new File([await png()], `${slug(spec.title)}.png`, { type: "image/png" });
 
   const download = () =>
     run(async () => {
       const url = URL.createObjectURL(await png());
-      const a = Object.assign(document.createElement("a"), { href: url, download: `${slug(spec.title)}.png` });
+      const a = Object.assign(document.createElement("a"), {
+        href: url,
+        download: `${slug(spec.title)}.png`,
+      });
       a.click();
       URL.revokeObjectURL(url);
       return "Saved";
@@ -46,7 +56,8 @@ export function StickerCanvas({ spec }: { spec: StickerSpec }) {
   const share = () =>
     run(async () => {
       const f = await file();
-      if (!navigator.canShare?.({ files: [f] })) throw new Error("Sharing isn't supported here, use Download");
+      if (!navigator.canShare?.({ files: [f] }))
+        throw new Error("Sharing isn't supported here, use Download");
       await navigator.share({ files: [f], title: spec.title });
       return "Shared";
     });
@@ -60,7 +71,11 @@ export function StickerCanvas({ spec }: { spec: StickerSpec }) {
   return (
     <div className="flex flex-col gap-3">
       <div className="rounded-2xl bg-[conic-gradient(#f1f5f9_25%,#e2e8f0_0_50%,#f1f5f9_0_75%,#e2e8f0_0)] bg-[length:24px_24px] p-2">
-        <canvas ref={ref} className="mx-auto aspect-square w-full max-w-md" aria-label="Sticker preview" />
+        <canvas
+          ref={ref}
+          className="mx-auto aspect-square w-full max-w-md"
+          aria-label="Sticker preview"
+        />
       </div>
       <div className="grid grid-cols-3 gap-2">
         {buttons.map(({ label, Icon, onClick }) => (
