@@ -38,7 +38,10 @@ test("formatting: pace and duration", () => {
 });
 
 test("achievements: best distance badge plus best climb badge", () => {
-  assert.deepEqual(achievements({ distanceM: 21_500, durationS: null, elevGainM: 620 }), ["Half marathon", "500m climb"]);
+  assert.deepEqual(achievements({ distanceM: 21_500, durationS: null, elevGainM: 620 }), [
+    "Half marathon",
+    "500m climb",
+  ]);
   assert.deepEqual(achievements({ distanceM: 3_000, durationS: null, elevGainM: null }), []);
 });
 

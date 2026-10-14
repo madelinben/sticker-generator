@@ -5,7 +5,14 @@ import type { StickerSpec } from "./lib/draw";
 import type { FrameId, ThemeId } from "./lib/frames";
 import { parseGpx, type TrackPoint } from "./lib/gpx";
 import { takeHandoff } from "./lib/handoff";
-import { achievements, computeStats, formatDistance, formatDuration, formatPace, type Stats } from "./lib/stats";
+import {
+  achievements,
+  computeStats,
+  formatDistance,
+  formatDuration,
+  formatPace,
+  type Stats,
+} from "./lib/stats";
 
 const EMPTY: Fields = { distance: "", time: "", pace: "", climb: "" };
 const DEFAULT_FOOTER = "get-out-there.app";
@@ -20,7 +27,12 @@ function fieldsFrom(s: Stats): Fields {
 }
 
 const FIELD_ORDER: (keyof Fields)[] = ["distance", "time", "pace", "climb"];
-const LABEL: Record<keyof Fields, string> = { distance: "Distance", time: "Time", pace: "Pace", climb: "Climb" };
+const LABEL: Record<keyof Fields, string> = {
+  distance: "Distance",
+  time: "Time",
+  pace: "Pace",
+  climb: "Climb",
+};
 
 export function StickersApp() {
   const [title, setTitle] = useState("");
@@ -65,7 +77,10 @@ export function StickersApp() {
     };
     return {
       title,
-      stats: FIELD_ORDER.filter((k) => fields[k].trim()).map((k) => ({ label: LABEL[k], value: fields[k].trim() })),
+      stats: FIELD_ORDER.filter((k) => fields[k].trim()).map((k) => ({
+        label: LABEL[k],
+        value: fields[k].trim(),
+      })),
       badges: achievements(known),
       points,
       frame,

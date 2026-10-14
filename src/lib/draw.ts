@@ -67,12 +67,20 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
   ctx.textBaseline = "middle";
 
   // route (or the headline stat when there is no track)
-  const route = fitTrack(thin(spec.points, 600), { x: s * 0.2, y: s * 0.16, w: s * 0.6, h: s * 0.4 });
+  const route = fitTrack(thin(spec.points, 600), {
+    x: s * 0.2,
+    y: s * 0.16,
+    w: s * 0.6,
+    h: s * 0.4,
+  });
   if (route.length) {
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.beginPath();
-    route.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)));
+    for (const [i, [x, y]] of route.entries()) {
+      if (i) ctx.lineTo(x, y);
+      else ctx.moveTo(x, y);
+    }
     ctx.strokeStyle = "rgba(0,0,0,0.25)";
     ctx.lineWidth = s * 0.03;
     ctx.stroke();
@@ -94,7 +102,10 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
   ctx.font = `900 ${s * 0.07}px ${FONT}`;
   ctx.fillText(spec.title || "My activity", s / 2, s * 0.64, s * 0.72);
 
-  spec.badges.slice(0, 2).forEach((b, i, all) => pill(ctx, b, s / 2 + (i - (all.length - 1) / 2) * s * 0.3, s * 0.715, s));
+  const badges = spec.badges.slice(0, 2);
+  for (const [i, b] of badges.entries()) {
+    pill(ctx, b, s / 2 + (i - (badges.length - 1) / 2) * s * 0.3, s * 0.715, s);
+  }
 
   const stats = spec.stats.slice(0, 3);
   stats.forEach((st, i) => {

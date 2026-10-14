@@ -34,7 +34,7 @@ export function framePath(id: FrameId, size: number, margin: number): string {
           const a = (Math.PI * 2 * i) / (teeth * 2) - Math.PI / 2;
           const rad = i % 2 === 0 ? r : r * 0.93;
           return [c + rad * Math.cos(a), c + rad * Math.sin(a)];
-        }),
+        })
       );
     }
     case "hex":
@@ -42,7 +42,7 @@ export function framePath(id: FrameId, size: number, margin: number): string {
         Array.from({ length: 6 }, (_, i): [number, number] => {
           const a = (Math.PI * 2 * i) / 6 - Math.PI / 2;
           return [c + r * Math.cos(a), c + r * Math.sin(a)];
-        }),
+        })
       );
     case "rounded": {
       const [x0, x1, k] = [margin, size - margin, size * 0.14];
