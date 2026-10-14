@@ -1,0 +1,8 @@
+export { StickersApp } from "./StickersApp";
+export { HANDOFF_KEY, type Handoff } from "./lib/handoff";
+
+export const meta = {
+  id: "stickers",
+  title: "Activity Stickers",
+  description: "Turn your activity stats and route into a shareable sticker",
+} as const;
