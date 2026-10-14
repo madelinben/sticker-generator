@@ -69,9 +69,9 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
   // route (or the headline stat when there is no track)
   const route = fitTrack(thin(spec.points, 600), {
     x: s * 0.2,
-    y: s * 0.16,
+    y: s * 0.13,
     w: s * 0.6,
-    h: s * 0.4,
+    h: s * 0.36,
   });
   if (route.length) {
     ctx.lineJoin = "round";
@@ -99,26 +99,26 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
   }
 
   ctx.fillStyle = "#fff";
-  ctx.font = `900 ${s * 0.07}px ${FONT}`;
-  ctx.fillText(spec.title || "My activity", s / 2, s * 0.64, s * 0.72);
+  ctx.font = `900 ${s * 0.065}px ${FONT}`;
+  ctx.fillText(spec.title || "My activity", s / 2, s * 0.565, s * 0.6);
 
   const badges = spec.badges.slice(0, 2);
   for (const [i, b] of badges.entries()) {
-    pill(ctx, b, s / 2 + (i - (badges.length - 1) / 2) * s * 0.3, s * 0.715, s);
+    pill(ctx, b, s / 2 + (i - (badges.length - 1) / 2) * s * 0.3, s * 0.625, s);
   }
 
   const stats = spec.stats.slice(0, 3);
   stats.forEach((st, i) => {
-    const x = s / 2 + (i - (stats.length - 1) / 2) * s * 0.26;
+    const x = s / 2 + (i - (stats.length - 1) / 2) * s * 0.19;
     ctx.fillStyle = "rgba(255,255,255,0.8)";
     ctx.font = `700 ${s * 0.027}px ${FONT}`;
-    ctx.fillText(st.label.toUpperCase(), x, s * 0.79);
+    ctx.fillText(st.label.toUpperCase(), x, s * 0.69);
     ctx.fillStyle = "#fff";
-    ctx.font = `900 ${s * 0.056}px ${FONT}`;
-    ctx.fillText(st.value, x, s * 0.845, s * 0.24);
+    ctx.font = `900 ${s * 0.05}px ${FONT}`;
+    ctx.fillText(st.value, x, s * 0.735, s * 0.18);
   });
 
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = `700 ${s * 0.027}px ${FONT}`;
-  ctx.fillText(spec.footer || "get-out-there.app", s / 2, s * 0.91, s * 0.7);
+  ctx.fillText(spec.footer || "get-out-there.app", s / 2, s * 0.8, s * 0.46);
 }
