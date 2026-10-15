@@ -13,7 +13,16 @@ const slug = (s: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "") || "sticker";
 
-export function StickerCanvas({ spec }: { spec: StickerSpec }) {
+/** Host hook run before any export (download / copy / share). Reject to cancel. Used for the ad wall. */
+export type BeforeExport = (label: string) => Promise<void>;
+
+export function StickerCanvas({
+  spec,
+  beforeExport,
+}: {
+  spec: StickerSpec;
+  beforeExport?: BeforeExport;
+}) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("");
 
@@ -24,6 +33,7 @@ export function StickerCanvas({ spec }: { spec: StickerSpec }) {
 
   async function run(action: () => Promise<string>) {
     try {
+      await beforeExport?.("sticker");
       setStatus(await action());
     } catch (e) {
       setStatus(e instanceof Error ? e.message : "Something went wrong");
