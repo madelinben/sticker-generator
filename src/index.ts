@@ -1,3 +1,4 @@
+export type { BeforeExport } from "./components/StickerCanvas";
 export { HANDOFF_KEY, type Handoff } from "./lib/handoff";
 export { StickersApp } from "./StickersApp";
 

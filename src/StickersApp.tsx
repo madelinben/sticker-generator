@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { StickerCanvas } from "./components/StickerCanvas";
+import { type BeforeExport, StickerCanvas } from "./components/StickerCanvas";
 import { type Fields, StickerForm } from "./components/StickerForm";
 import type { StickerSpec } from "./lib/draw";
 import type { FrameId, ThemeId } from "./lib/frames";
@@ -34,7 +34,7 @@ const LABEL: Record<keyof Fields, string> = {
   climb: "Climb",
 };
 
-export function StickersApp() {
+export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   const [title, setTitle] = useState("");
   const [fields, setFields] = useState<Fields>(EMPTY);
   const [footer, setFooter] = useState(DEFAULT_FOOTER);
@@ -91,7 +91,7 @@ export function StickersApp() {
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 bg-white p-4 md:grid-cols-2">
-      <StickerCanvas spec={spec} />
+      <StickerCanvas spec={spec} beforeExport={beforeExport} />
       <StickerForm
         title={title}
         fields={fields}
