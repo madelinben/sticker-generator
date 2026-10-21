@@ -2,6 +2,7 @@ import { drawEngraving, drawMetal, METALS, type MetalId, ringText } from "./draw
 import { drawRoute, type RouteInk } from "./drawRoute";
 import { type FrameId, framePath, SAFE_SCALE, THEMES, type ThemeId } from "./frames";
 import type { TrackPoint } from "./gpx";
+import { type LandmarkChoice, landmarkPath } from "./landmarks";
 import type { RouteOptions } from "./route3d";
 
 export type StatItem = { label: string; value: string };
@@ -18,6 +19,7 @@ export type StickerSpec = {
   look: LookId;
   metal: MetalId;
   route: RouteOptions;
+  landmark: LandmarkChoice;
   footer: string;
 };
 
@@ -25,12 +27,21 @@ export const STICKER_SIZE = 1024;
 
 const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
-type Palette = { fg: string; soft: string; pill: string; route: RouteInk };
+type Palette = {
+  fg: string;
+  soft: string;
+  pill: string;
+  landmark: string;
+  landmarkHi: string;
+  route: RouteInk;
+};
 
 const STICKER_PALETTE: Palette = {
   fg: "#fff",
   soft: "rgba(255,255,255,0.8)",
   pill: "rgba(255,255,255,0.24)",
+  landmark: "rgba(255,255,255,0.2)",
+  landmarkHi: "rgba(255,255,255,0.12)",
   route: { line: "#fff", shadow: "rgba(0,0,0,0.25)", wall: "rgba(255,255,255,0.22)" },
 };
 
@@ -51,6 +62,31 @@ function pill(
   ctx.fill();
   ctx.fillStyle = p.fg;
   ctx.fillText(text, cx, y + s * 0.001);
+}
+
+/** Local landmark in relief behind the route: light edge up-left, soft ink fill. */
+function drawLandmark(
+  ctx: CanvasRenderingContext2D,
+  path: string,
+  box: { x: number; y: number; w: number; h: number },
+  pal: Palette,
+  s: number
+) {
+  const w = box.w * 1.15;
+  const k = w / 100;
+  const [x, y] = [box.x + (box.w - w) / 2, box.y + box.h - 60 * k + s * 0.03];
+  const p = new Path2D(path);
+  const place = (dx: number, dy: number) => {
+    ctx.setTransform(k, 0, 0, k, x + dx, y + dy);
+  };
+  ctx.save();
+  place(-s * 0.004, -s * 0.004);
+  ctx.fillStyle = pal.landmarkHi;
+  ctx.fill(p);
+  place(0, 0);
+  ctx.fillStyle = pal.landmark;
+  ctx.fill(p);
+  ctx.restore();
 }
 
 function drawBackground(ctx: CanvasRenderingContext2D, spec: StickerSpec, path: Path2D, s: number) {
@@ -105,7 +141,9 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
         fg: metal.ink,
         soft: metal.ink,
         pill: "rgba(255,255,255,0.3)",
-        route: { line: metal.ink, shadow: "rgba(255,255,255,0.55)", wall: `${metal.ink}33` },
+        landmark: `${metal.ink}38`,
+        landmarkHi: metal.lift,
+        route: { line: metal.ink, shadow: metal.edge, wall: `${metal.ink}33` },
       }
     : STICKER_PALETTE;
 
@@ -126,6 +164,8 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
   const box = medal
     ? { x: s * 0.24, y: s * 0.2, w: s * 0.52, h: s * 0.34 }
     : { x: s * 0.2, y: s * 0.13, w: s * 0.6, h: s * 0.36 };
+  const silhouette = landmarkPath(spec.landmark, spec.points);
+  if (silhouette) drawLandmark(ctx, silhouette, box, pal, s);
   const drew = drawRoute(ctx, spec.points, spec.route, box, pal.route, s);
   if (!drew && spec.stats[0]) {
     ctx.fillStyle = pal.fg;

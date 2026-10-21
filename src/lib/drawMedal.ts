@@ -1,5 +1,10 @@
 export type MetalId = "gold" | "silver" | "bronze" | "graphite";
 
+const LIGHT = "rgba(255,255,255,0.55)";
+const LIGHT_SOFT = "rgba(255,255,255,0.5)";
+const DARK = "rgba(0,0,0,0.5)";
+const LIGHT_DIM = "rgba(255,255,255,0.18)";
+
 export const METALS: {
   id: MetalId;
   label: string;
@@ -7,10 +12,39 @@ export const METALS: {
   mid: string;
   lo: string;
   ink: string;
+  edge: string;
+  lift: string;
 }[] = [
-  { id: "gold", label: "Gold", hi: "#fff3b0", mid: "#e0a82e", lo: "#8a5a12", ink: "#4a2e06" },
-  { id: "silver", label: "Silver", hi: "#ffffff", mid: "#b8c0cc", lo: "#6b7280", ink: "#1f2937" },
-  { id: "bronze", label: "Bronze", hi: "#f6c79b", mid: "#c9773a", lo: "#7a3a14", ink: "#3b1a07" },
+  {
+    id: "gold",
+    label: "Gold",
+    hi: "#fff3b0",
+    mid: "#e0a82e",
+    lo: "#8a5a12",
+    ink: "#4a2e06",
+    edge: LIGHT,
+    lift: LIGHT_SOFT,
+  },
+  {
+    id: "silver",
+    label: "Silver",
+    hi: "#ffffff",
+    mid: "#b8c0cc",
+    lo: "#6b7280",
+    ink: "#1f2937",
+    edge: LIGHT,
+    lift: LIGHT_SOFT,
+  },
+  {
+    id: "bronze",
+    label: "Bronze",
+    hi: "#f6c79b",
+    mid: "#c9773a",
+    lo: "#7a3a14",
+    ink: "#3b1a07",
+    edge: LIGHT,
+    lift: LIGHT_SOFT,
+  },
   {
     id: "graphite",
     label: "Graphite",
@@ -18,6 +52,8 @@ export const METALS: {
     mid: "#4b5563",
     lo: "#111827",
     ink: "#f9fafb",
+    edge: DARK,
+    lift: LIGHT_DIM,
   },
 ];
 

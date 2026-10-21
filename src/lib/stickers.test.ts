@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parseGpx } from "./gpx.ts";
+import { landmarkPath } from "./landmarks.ts";
 import { fitTrack, thin } from "./project.ts";
 import { DEFAULT_ROUTE, peakFraction, project, sliceByDistance, toLocal } from "./route3d.ts";
 import { achievements, computeStats, formatDuration, formatPace } from "./stats.ts";
@@ -101,4 +102,12 @@ test("project: top-down ignores elevation, side view lifts it", () => {
   );
   const side = project(local, { ...DEFAULT_ROUTE, tilt: 10 }, box);
   assert.notDeepEqual(side.line, side.base);
+});
+
+test("landmarkPath: auto picks nearest city, terrain fallback, none is null", () => {
+  const near = (lat: number, lon: number, ele = 0) =>
+    [0, 1].map((i) => ({ lat: lat + i * 0.001, lon, ele: ele * i, time: null }));
+  assert.equal(landmarkPath("auto", near(53.41, -2.99)), landmarkPath("liverpool", []));
+  assert.equal(landmarkPath("auto", near(54.45, -3.2, 900)), landmarkPath("mountain", []));
+  assert.equal(landmarkPath("none", near(53.41, -2.99)), null);
 });

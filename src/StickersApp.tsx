@@ -7,6 +7,7 @@ import type { MetalId } from "./lib/drawMedal";
 import type { FrameId, ThemeId } from "./lib/frames";
 import { parseGpx, type TrackPoint } from "./lib/gpx";
 import { takeHandoff } from "./lib/handoff";
+import type { LandmarkChoice } from "./lib/landmarks";
 import { DEFAULT_ROUTE, type RouteOptions } from "./lib/route3d";
 import {
   achievements,
@@ -45,6 +46,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   const [theme, setTheme] = useState<ThemeId>("sunrise");
   const [look, setLook] = useState<LookId>("sticker");
   const [metal, setMetal] = useState<MetalId>("gold");
+  const [landmark, setLandmark] = useState<LandmarkChoice>("auto");
   const [route, setRoute] = useState<RouteOptions>(DEFAULT_ROUTE);
   const [points, setPoints] = useState<TrackPoint[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
@@ -95,9 +97,10 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
       look,
       metal,
       route,
+      landmark,
       footer,
     };
-  }, [title, fields, footer, frame, theme, look, metal, route, points, stats]);
+  }, [title, fields, footer, frame, theme, look, metal, route, landmark, points, stats]);
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 bg-white p-4 md:grid-cols-2">
@@ -111,6 +114,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
           theme={theme}
           look={look}
           metal={metal}
+          landmark={landmark}
           hasTrack={points.length > 1}
           error={error}
           onTitle={setTitle}
@@ -120,6 +124,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
           onTheme={setTheme}
           onLook={setLook}
           onMetal={setMetal}
+          onLandmark={setLandmark}
           onFile={onFile}
         />
         {points.length > 1 && (

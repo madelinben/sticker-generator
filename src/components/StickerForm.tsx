@@ -2,6 +2,7 @@ import { FileUp } from "lucide-react";
 import type { LookId } from "../lib/draw";
 import { METALS, type MetalId } from "../lib/drawMedal";
 import { FRAMES, type FrameId, THEMES, type ThemeId } from "../lib/frames";
+import { LANDMARKS, type LandmarkChoice } from "../lib/landmarks";
 
 export type Fields = { distance: string; time: string; pace: string; climb: string };
 
@@ -20,6 +21,7 @@ interface StickerFormProps {
   theme: ThemeId;
   look: LookId;
   metal: MetalId;
+  landmark: LandmarkChoice;
   hasTrack: boolean;
   error: string;
   onTitle: (v: string) => void;
@@ -29,6 +31,7 @@ interface StickerFormProps {
   onTheme: (v: ThemeId) => void;
   onLook: (v: LookId) => void;
   onMetal: (v: MetalId) => void;
+  onLandmark: (v: LandmarkChoice) => void;
   onFile: (f: File) => void;
 }
 
@@ -138,6 +141,23 @@ export function StickerForm(p: StickerFormProps) {
           </button>
         ))}
       </fieldset>
+
+      <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
+        Local landmark
+        <select
+          className={inputCls}
+          value={p.landmark}
+          onChange={(e) => p.onLandmark(e.target.value as LandmarkChoice)}
+        >
+          <option value="auto">Auto (from your route)</option>
+          <option value="none">None</option>
+          {LANDMARKS.map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+      </label>
 
       <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
         Footer line
