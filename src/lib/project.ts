@@ -2,12 +2,9 @@ import type { TrackPoint } from "./gpx";
 
 export type Box = { x: number; y: number; w: number; h: number };
 
-/** Fit a GPS track into `box` (aspect preserved, centred, north up). Returns canvas coordinates. */
-export function fitTrack(pts: TrackPoint[], box: Box): [number, number][] {
-  if (pts.length < 2) return [];
-  const lat0 = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
-  const k = Math.cos((lat0 * Math.PI) / 180);
-  const xy = pts.map((p): [number, number] => [p.lon * k, -p.lat]);
+/** Fit planar points into `box` (aspect preserved, centred). Returns canvas coordinates. */
+export function fitPoints(xy: [number, number][], box: Box): [number, number][] {
+  if (xy.length < 2) return [];
   const xs = xy.map((p) => p[0]);
   const ys = xy.map((p) => p[1]);
   const [minX, maxX, minY, maxY] = [
@@ -22,6 +19,17 @@ export function fitTrack(pts: TrackPoint[], box: Box): [number, number][] {
   const offX = box.x + (box.w - spanX * scale) / 2;
   const offY = box.y + (box.h - spanY * scale) / 2;
   return xy.map(([x, y]) => [offX + (x - minX) * scale, offY + (y - minY) * scale]);
+}
+
+/** Fit a GPS track into `box` (aspect preserved, centred, north up). Returns canvas coordinates. */
+export function fitTrack(pts: TrackPoint[], box: Box): [number, number][] {
+  if (pts.length < 2) return [];
+  const lat0 = pts.reduce((s, p) => s + p.lat, 0) / pts.length;
+  const k = Math.cos((lat0 * Math.PI) / 180);
+  return fitPoints(
+    pts.map((p): [number, number] => [p.lon * k, -p.lat]),
+    box
+  );
 }
 
 /** Thin a long track so canvas drawing stays cheap. */

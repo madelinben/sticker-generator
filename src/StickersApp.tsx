@@ -1,10 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
+import { RouteControls } from "./components/RouteControls";
 import { type BeforeExport, StickerCanvas } from "./components/StickerCanvas";
 import { type Fields, StickerForm } from "./components/StickerForm";
-import type { StickerSpec } from "./lib/draw";
+import type { LookId, StickerSpec } from "./lib/draw";
+import type { MetalId } from "./lib/drawMedal";
 import type { FrameId, ThemeId } from "./lib/frames";
 import { parseGpx, type TrackPoint } from "./lib/gpx";
 import { takeHandoff } from "./lib/handoff";
+import { DEFAULT_ROUTE, type RouteOptions } from "./lib/route3d";
 import {
   achievements,
   computeStats,
@@ -40,6 +43,9 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   const [footer, setFooter] = useState(DEFAULT_FOOTER);
   const [frame, setFrame] = useState<FrameId>("scallop");
   const [theme, setTheme] = useState<ThemeId>("sunrise");
+  const [look, setLook] = useState<LookId>("sticker");
+  const [metal, setMetal] = useState<MetalId>("gold");
+  const [route, setRoute] = useState<RouteOptions>(DEFAULT_ROUTE);
   const [points, setPoints] = useState<TrackPoint[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState("");
@@ -64,6 +70,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
     }
     const s = computeStats(pts);
     setPoints(pts);
+    setRoute((r) => ({ ...r, from: 0, to: 1 }));
     setStats(s);
     setFields(fieldsFrom(s));
     setTitle((t) => t || file.name.replace(/\.gpx$/i, "").slice(0, 32));
@@ -85,28 +92,44 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
       points,
       frame,
       theme,
+      look,
+      metal,
+      route,
       footer,
     };
-  }, [title, fields, footer, frame, theme, points, stats]);
+  }, [title, fields, footer, frame, theme, look, metal, route, points, stats]);
 
   return (
     <div className="mx-auto grid max-w-5xl gap-6 bg-white p-4 md:grid-cols-2">
       <StickerCanvas spec={spec} beforeExport={beforeExport} />
-      <StickerForm
-        title={title}
-        fields={fields}
-        footer={footer}
-        frame={frame}
-        theme={theme}
-        hasTrack={points.length > 1}
-        error={error}
-        onTitle={setTitle}
-        onField={(k, v) => setFields((f) => ({ ...f, [k]: v }))}
-        onFooter={setFooter}
-        onFrame={setFrame}
-        onTheme={setTheme}
-        onFile={onFile}
-      />
+      <div className="flex flex-col gap-4">
+        <StickerForm
+          title={title}
+          fields={fields}
+          footer={footer}
+          frame={frame}
+          theme={theme}
+          look={look}
+          metal={metal}
+          hasTrack={points.length > 1}
+          error={error}
+          onTitle={setTitle}
+          onField={(k, v) => setFields((f) => ({ ...f, [k]: v }))}
+          onFooter={setFooter}
+          onFrame={setFrame}
+          onTheme={setTheme}
+          onLook={setLook}
+          onMetal={setMetal}
+          onFile={onFile}
+        />
+        {points.length > 1 && (
+          <RouteControls
+            points={points}
+            route={route}
+            onRoute={(patch) => setRoute((r) => ({ ...r, ...patch }))}
+          />
+        )}
+      </div>
     </div>
   );
 }

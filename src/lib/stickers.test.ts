@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parseGpx } from "./gpx.ts";
 import { fitTrack, thin } from "./project.ts";
+import { DEFAULT_ROUTE, peakFraction, project, sliceByDistance, toLocal } from "./route3d.ts";
 import { achievements, computeStats, formatDuration, formatPace } from "./stats.ts";
 
 const GPX = `<?xml version="1.0"?><gpx><trk><trkseg>
@@ -59,4 +60,45 @@ test("thin keeps first and last point", () => {
   const t = thin(a, 10);
   assert.equal(t.length, 10);
   assert.deepEqual([t[0], t[9]], [0, 999]);
+});
+
+test("sliceByDistance keeps only the selected stretch", () => {
+  const pts = Array.from({ length: 11 }, (_, i) => ({
+    lat: 51 + i * 0.001,
+    lon: -1,
+    ele: i,
+    time: null,
+  }));
+  const half = sliceByDistance(pts, 0, 0.55);
+  assert.equal(half.length, 6);
+  assert.equal(sliceByDistance(pts, 0.45, 1).length, 6);
+});
+
+test("peakFraction finds the summit, null without elevation", () => {
+  const pts = [0, 5, 10, 4, 0].map((e, i) => ({
+    lat: 51 + i * 0.001,
+    lon: -1,
+    ele: e,
+    time: null,
+  }));
+  assert.ok(Math.abs((peakFraction(pts) ?? -1) - 0.5) < 0.01);
+  assert.equal(peakFraction(pts.map((p) => ({ ...p, ele: null }))), null);
+});
+
+test("project: top-down ignores elevation, side view lifts it", () => {
+  const pts = Array.from({ length: 30 }, (_, i) => i * 10).map((e, i) => ({
+    lat: 51 + i * 0.001,
+    lon: -1,
+    ele: e,
+    time: null,
+  }));
+  const local = toLocal(pts);
+  const box = { x: 0, y: 0, w: 100, h: 100 };
+  const flat = project(local, { ...DEFAULT_ROUTE, tilt: 90 }, box);
+  assert.deepEqual(
+    flat.line.map((p) => Math.round(p[1])),
+    flat.base.map((p) => Math.round(p[1]))
+  );
+  const side = project(local, { ...DEFAULT_ROUTE, tilt: 10 }, box);
+  assert.notDeepEqual(side.line, side.base);
 });

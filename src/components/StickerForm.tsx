@@ -1,4 +1,6 @@
 import { FileUp } from "lucide-react";
+import type { LookId } from "../lib/draw";
+import { METALS, type MetalId } from "../lib/drawMedal";
 import { FRAMES, type FrameId, THEMES, type ThemeId } from "../lib/frames";
 
 export type Fields = { distance: string; time: string; pace: string; climb: string };
@@ -16,6 +18,8 @@ interface StickerFormProps {
   footer: string;
   frame: FrameId;
   theme: ThemeId;
+  look: LookId;
+  metal: MetalId;
   hasTrack: boolean;
   error: string;
   onTitle: (v: string) => void;
@@ -23,6 +27,8 @@ interface StickerFormProps {
   onFooter: (v: string) => void;
   onFrame: (v: FrameId) => void;
   onTheme: (v: ThemeId) => void;
+  onLook: (v: LookId) => void;
+  onMetal: (v: MetalId) => void;
   onFile: (f: File) => void;
 }
 
@@ -30,6 +36,11 @@ const inputCls =
   "min-h-11 rounded-xl border-2 border-slate-200 px-3 text-base outline-none focus:border-orange-500";
 const chipCls = (on: boolean) =>
   `min-h-11 rounded-xl px-3 text-sm font-bold transition active:scale-[0.97] ${on ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`;
+
+const LOOKS: { id: LookId; label: string }[] = [
+  { id: "sticker", label: "Sticker" },
+  { id: "medal", label: "Race medal" },
+];
 
 export function StickerForm(p: StickerFormProps) {
   return (
@@ -77,18 +88,40 @@ export function StickerForm(p: StickerFormProps) {
       </p>
 
       <fieldset className="flex flex-wrap gap-2">
-        <legend className="mb-1 text-sm font-semibold text-slate-700">Colour</legend>
-        {THEMES.map((t) => (
+        <legend className="mb-1 text-sm font-semibold text-slate-700">Style</legend>
+        {LOOKS.map((l) => (
           <button
-            key={t.id}
+            key={l.id}
             type="button"
-            aria-pressed={p.theme === t.id}
-            onClick={() => p.onTheme(t.id)}
-            className={chipCls(p.theme === t.id)}
+            aria-pressed={p.look === l.id}
+            onClick={() => p.onLook(l.id)}
+            className={chipCls(p.look === l.id)}
           >
-            {t.label}
+            {l.label}
           </button>
         ))}
+      </fieldset>
+
+      <fieldset className="flex flex-wrap gap-2">
+        <legend className="mb-1 text-sm font-semibold text-slate-700">
+          {p.look === "medal" ? "Metal" : "Colour"}
+        </legend>
+        {(p.look === "medal" ? METALS : THEMES).map((t) => {
+          const on = (p.look === "medal" ? p.metal : p.theme) === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              aria-pressed={on}
+              onClick={() =>
+                p.look === "medal" ? p.onMetal(t.id as MetalId) : p.onTheme(t.id as ThemeId)
+              }
+              className={chipCls(on)}
+            >
+              {t.label}
+            </button>
+          );
+        })}
       </fieldset>
 
       <fieldset className="flex flex-wrap gap-2">
