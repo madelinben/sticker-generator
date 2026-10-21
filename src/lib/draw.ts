@@ -1,6 +1,6 @@
-import { drawMetal, METALS, type MetalId, ringText } from "./drawMedal";
+import { drawEngraving, drawMetal, METALS, type MetalId, ringText } from "./drawMedal";
 import { drawRoute, type RouteInk } from "./drawRoute";
-import { type FrameId, framePath, THEMES, type ThemeId } from "./frames";
+import { type FrameId, framePath, SAFE_SCALE, THEMES, type ThemeId } from "./frames";
 import type { TrackPoint } from "./gpx";
 import type { RouteOptions } from "./route3d";
 
@@ -111,6 +111,14 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
 
   drawBackground(ctx, spec, new Path2D(framePath(spec.frame, s, s * 0.045)), s);
 
+  // everything below stays inside the frame's safe area
+  const k = SAFE_SCALE[spec.frame];
+  ctx.save();
+  ctx.translate(s / 2, s / 2);
+  ctx.scale(k, k);
+  ctx.translate(-s / 2, -s / 2);
+  if (medal) drawEngraving(ctx, metal, s);
+
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
@@ -142,13 +150,13 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
 
   const stats = spec.stats.slice(0, 3);
   stats.forEach((st, i) => {
-    const x = s / 2 + (i - (stats.length - 1) / 2) * s * 0.19;
+    const x = s / 2 + (i - (stats.length - 1) / 2) * s * (medal ? 0.165 : 0.19);
     ctx.fillStyle = pal.soft;
     ctx.font = `700 ${s * 0.027}px ${FONT}`;
     ctx.fillText(st.label.toUpperCase(), x, s * labelY);
     ctx.fillStyle = pal.fg;
     ctx.font = `900 ${s * (medal ? 0.043 : 0.05)}px ${FONT}`;
-    ctx.fillText(st.value, x, s * valueY, s * 0.18);
+    ctx.fillText(st.value, x, s * valueY, s * (medal ? 0.15 : 0.18));
   });
 
   if (!medal) {
@@ -156,4 +164,5 @@ export function drawSticker(canvas: HTMLCanvasElement, spec: StickerSpec, s = ST
     ctx.font = `700 ${s * 0.027}px ${FONT}`;
     ctx.fillText(spec.footer || "get-out-there.app", s / 2, s * 0.8, s * 0.46);
   }
+  ctx.restore();
 }

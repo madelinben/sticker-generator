@@ -23,6 +23,7 @@ export const METALS: {
 
 export type Metal = (typeof METALS)[number];
 
+const MAX_SWEEP = Math.PI * 0.8;
 const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 /** Brushed-metal face with a bevelled rim, clipped to `path`. */
@@ -48,8 +49,10 @@ export function drawMetal(ctx: CanvasRenderingContext2D, path: Path2D, m: Metal,
   ctx.strokeStyle = m.hi;
   ctx.stroke(path);
   ctx.restore();
+}
 
-  // engraved ring separating the lettering from the face
+/** Engraved ring separating the rim lettering from the face. */
+export function drawEngraving(ctx: CanvasRenderingContext2D, m: Metal, s: number): void {
   ctx.beginPath();
   ctx.arc(s / 2, s / 2, s * 0.335, 0, Math.PI * 2);
   ctx.lineWidth = s * 0.006;
@@ -71,13 +74,17 @@ export function ringText(
 ): void {
   const label = text.toUpperCase();
   if (!label) return;
-  const size = s * 0.04;
   const r = s * 0.375;
+  // shrink long text so top and bottom lettering never meet at the sides
+  const base = s * 0.04;
+  ctx.font = `900 ${base}px ${FONT}`;
+  const natural = [...label].reduce((w, ch) => w + ctx.measureText(ch).width + base * 0.18, 0);
+  const size = Math.min(base, (base * r * MAX_SWEEP) / natural);
   ctx.font = `900 ${size}px ${FONT}`;
   const gap = size * 0.18;
   const widths = [...label].map((ch) => ctx.measureText(ch).width + gap);
   const total = widths.reduce((a, b) => a + b, 0);
-  const sweep = Math.min(total / r, Math.PI * 1.15);
+  const sweep = Math.min(total / r, MAX_SWEEP);
   let a = (bottom ? Math.PI / 2 : -Math.PI / 2) + (bottom ? sweep / 2 : -sweep / 2);
   for (const [i, ch] of [...label].entries()) {
     const step = (widths[i] / total) * sweep;

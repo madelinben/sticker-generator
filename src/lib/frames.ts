@@ -10,6 +10,17 @@ export const FRAMES: { id: FrameId; label: string }[] = [
   { id: "burst", label: "Burst" },
 ];
 
+/** Content (route, text, ring) is scaled about the centre by this much so it stays inside each outline's inner edge. */
+export const SAFE_SCALE: Record<FrameId, number> = {
+  scallop: 1,
+  hex: 0.88,
+  rounded: 0.94,
+  wave: 0.92,
+  circle: 1,
+  shield: 0.88,
+  burst: 0.84,
+};
+
 export type ThemeId = "sunrise" | "ocean" | "forest" | "night";
 
 export const THEMES: { id: ThemeId; label: string; from: string; to: string }[] = [
