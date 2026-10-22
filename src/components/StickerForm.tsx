@@ -36,7 +36,7 @@ interface StickerFormProps {
 }
 
 const inputCls =
-  "min-h-11 rounded-xl border-2 border-slate-200 px-3 text-base outline-none focus:border-orange-500";
+  "min-h-11 w-full min-w-0 rounded-xl border-2 border-slate-200 px-3 text-base outline-none focus:border-orange-500";
 const chipCls = (on: boolean) =>
   `min-h-11 rounded-xl px-3 text-sm font-bold transition active:scale-[0.97] ${on ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`;
 
@@ -73,7 +73,7 @@ export function StickerForm(p: StickerFormProps) {
         />
       </label>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-2 gap-2 [&>label]:min-w-0">
         {(Object.keys(FIELD_LABELS) as (keyof Fields)[]).map((k) => (
           <label key={k} className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
             {FIELD_LABELS[k]}

@@ -96,6 +96,7 @@ export function RouteControls({ points, route, onRoute }: RouteControlsProps) {
           Start {pct(route.from)}
           <input
             type="range"
+            className="h-8 w-full"
             min={0}
             max={100}
             value={route.from * 100}
@@ -108,6 +109,7 @@ export function RouteControls({ points, route, onRoute }: RouteControlsProps) {
           End {pct(route.to)}
           <input
             type="range"
+            className="h-8 w-full"
             min={0}
             max={100}
             value={route.to * 100}
@@ -142,6 +144,7 @@ export function RouteControls({ points, route, onRoute }: RouteControlsProps) {
           {sl.unit}
           <input
             type="range"
+            className="h-8 w-full"
             min={sl.min}
             max={sl.max}
             step={sl.step}
@@ -155,6 +158,7 @@ export function RouteControls({ points, route, onRoute }: RouteControlsProps) {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            className="size-5"
             checked={route.wall}
             onChange={(e) => onRoute({ wall: e.target.checked })}
           />
@@ -163,6 +167,7 @@ export function RouteControls({ points, route, onRoute }: RouteControlsProps) {
         <label className="flex items-center gap-2">
           <input
             type="checkbox"
+            className="size-5"
             checked={route.markers}
             onChange={(e) => onRoute({ markers: e.target.checked })}
           />

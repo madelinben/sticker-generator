@@ -103,7 +103,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   }, [title, fields, footer, frame, theme, look, metal, route, landmark, points, stats]);
 
   return (
-    <div className="mx-auto grid max-w-5xl gap-6 bg-white p-4 md:grid-cols-2">
+    <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)] gap-6 bg-white p-4 md:grid-cols-2">
       <StickerCanvas spec={spec} beforeExport={beforeExport} />
       <div className="flex flex-col gap-4">
         <StickerForm
