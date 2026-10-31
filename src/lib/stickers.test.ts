@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { rowSizes } from "./frames.ts";
 import { parseGpx } from "./gpx.ts";
+import { badgeAsOf } from "./handoff.ts";
 import { landmarkPath } from "./landmarks.ts";
 import { fitTrack, thin } from "./project.ts";
 import { DEFAULT_ROUTE, peakFraction, project, sliceByDistance, toLocal } from "./route3d.ts";
@@ -117,4 +118,21 @@ test("rowSizes spreads letters evenly, longer rows in the middle", () => {
   assert.deepEqual(rowSizes(26, 6), [5, 5, 6, 5, 5]);
   assert.deepEqual(rowSizes(24, 6), [6, 6, 6, 6]);
   assert.deepEqual(rowSizes(7, 6), [4, 3]);
+});
+
+test("badgeAsOf counts only letters done by that date", () => {
+  const badge = {
+    letter: null,
+    done: 2,
+    possible: 25,
+    cells: [
+      { letter: "A", status: "done" as const, event: "Ashton", date: "2026-05-01" },
+      { letter: "B", status: "done" as const, event: "Brooklands", date: "2026-06-01" },
+      { letter: "X", status: "none" as const },
+    ],
+  };
+  const may = badgeAsOf(badge, "2026-05-01");
+  assert.equal(may.done, 1);
+  assert.deepEqual(may.cells[1], { letter: "B", status: "todo" });
+  assert.equal(badgeAsOf(badge, "2026-06-01").done, 2);
 });

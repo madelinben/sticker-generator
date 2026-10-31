@@ -8,7 +8,7 @@ import { type BadgeKind, drawBadge } from "./lib/drawBadge";
 import type { MetalId } from "./lib/drawMedal";
 import type { FrameId, ThemeId } from "./lib/frames";
 import { parseGpx, type TrackPoint } from "./lib/gpx";
-import { type BadgeHandoff, takeBadge, takeHandoff } from "./lib/handoff";
+import { type BadgeHandoff, badgeAsOf, takeBadge, takeHandoff } from "./lib/handoff";
 import type { LandmarkChoice } from "./lib/landmarks";
 import { DEFAULT_ROUTE, type RouteOptions } from "./lib/route3d";
 import {
@@ -56,6 +56,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   const [badge, setBadge] = useState<BadgeHandoff | null>(null);
   const [badgeKind, setBadgeKind] = useState<BadgeKind>("letter");
   const [badgeLetter, setBadgeLetter] = useState("A");
+  const [historic, setHistoric] = useState(false);
 
   // One-shot prefill when another tool (Strava dashboard, parkrun Alphabeteer) sent us here.
   useEffect(() => {
@@ -115,18 +116,26 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
     };
   }, [title, fields, footer, frame, theme, look, metal, route, landmark, points, stats]);
 
+  // historic: the badge as it stood on the selected letter's date
+  const asOf = historic ? badge?.cells.find((c) => c.letter === badgeLetter)?.date : undefined;
+  const shown = useMemo(() => (badge && asOf ? badgeAsOf(badge, asOf) : badge), [badge, asOf]);
   const draw = useMemo(
     () =>
-      badge
+      shown
         ? (c: HTMLCanvasElement) =>
-            drawBadge(c, { kind: badgeKind, badge, letter: badgeLetter, frame, theme, footer })
+            drawBadge(c, {
+              kind: badgeKind,
+              badge: shown,
+              letter: badgeLetter,
+              frame,
+              theme,
+              footer,
+            })
         : (c: HTMLCanvasElement) => drawSticker(c, spec),
-    [badge, badgeKind, badgeLetter, frame, theme, footer, spec]
+    [shown, badgeKind, badgeLetter, frame, theme, footer, spec]
   );
   const fileTitle = badge
-    ? badgeKind === "letter"
-      ? `parkrun alphabeteer ${badgeLetter}`
-      : "parkrun alphabeteer"
+    ? `parkrun alphabeteer${badgeKind === "letter" ? ` ${badgeLetter}` : ""}${asOf ? ` ${asOf}` : ""}`
     : title;
 
   return (
@@ -139,6 +148,8 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
           cells={badge.cells}
           frame={frame}
           theme={theme}
+          historic={historic}
+          onHistoric={setHistoric}
           onKind={setBadgeKind}
           onLetter={setBadgeLetter}
           onFrame={setFrame}

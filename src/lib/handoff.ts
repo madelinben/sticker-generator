@@ -47,3 +47,13 @@ export function takeBadge(): BadgeHandoff | null {
     return null;
   }
 }
+
+/** Progress as it stood on `date`: letters first done later go back to "todo" and the count follows */
+export function badgeAsOf(badge: BadgeHandoff, date: string): BadgeHandoff {
+  const cells = badge.cells.map((c) =>
+    c.status === "done" && c.date && c.date > date
+      ? { letter: c.letter, status: "todo" as const }
+      : c
+  );
+  return { ...badge, cells, done: cells.filter((c) => c.status === "done").length };
+}
