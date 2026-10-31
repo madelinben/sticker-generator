@@ -1,6 +1,5 @@
 import { Check, Copy, Download, Share2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { drawSticker, type StickerSpec } from "../lib/draw";
 
 const toBlob = (canvas: HTMLCanvasElement) =>
   new Promise<Blob>((resolve, reject) =>
@@ -17,19 +16,23 @@ const slug = (s: string) =>
 export type BeforeExport = (label: string) => Promise<void>;
 
 export function StickerCanvas({
-  spec,
+  title,
+  draw,
   beforeExport,
 }: {
-  spec: StickerSpec;
+  /** Used for the file name and share title */
+  title: string;
+  /** Paints the sticker; memoise it so the canvas only redraws when the design changes */
+  draw: (canvas: HTMLCanvasElement) => void;
   beforeExport?: BeforeExport;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const [status, setStatus] = useState("");
 
-  // Canvas is an imperative surface: redraw whenever the spec changes.
+  // Canvas is an imperative surface: redraw whenever the design changes.
   useEffect(() => {
-    if (ref.current) drawSticker(ref.current, spec);
-  }, [spec]);
+    if (ref.current) draw(ref.current);
+  }, [draw]);
 
   async function run(action: () => Promise<string>) {
     try {
@@ -41,15 +44,14 @@ export function StickerCanvas({
   }
 
   const png = async () => toBlob(ref.current as HTMLCanvasElement);
-  const file = async () =>
-    new File([await png()], `${slug(spec.title)}.png`, { type: "image/png" });
+  const file = async () => new File([await png()], `${slug(title)}.png`, { type: "image/png" });
 
   const download = () =>
     run(async () => {
       const url = URL.createObjectURL(await png());
       const a = Object.assign(document.createElement("a"), {
         href: url,
-        download: `${slug(spec.title)}.png`,
+        download: `${slug(title)}.png`,
       });
       a.click();
       URL.revokeObjectURL(url);
@@ -68,7 +70,7 @@ export function StickerCanvas({
       const f = await file();
       if (!navigator.canShare?.({ files: [f] }))
         throw new Error("Sharing isn't supported here, use Download");
-      await navigator.share({ files: [f], title: spec.title });
+      await navigator.share({ files: [f], title });
       return "Shared";
     });
 

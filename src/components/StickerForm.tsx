@@ -3,6 +3,7 @@ import type { LookId } from "../lib/draw";
 import { METALS, type MetalId } from "../lib/drawMedal";
 import { FRAMES, type FrameId, THEMES, type ThemeId } from "../lib/frames";
 import { LANDMARKS, type LandmarkChoice } from "../lib/landmarks";
+import { ChipGroup } from "./ChipGroup";
 
 export type Fields = { distance: string; time: string; pace: string; climb: string };
 
@@ -37,8 +38,6 @@ interface StickerFormProps {
 
 const inputCls =
   "min-h-11 w-full min-w-0 rounded-xl border-2 border-slate-200 px-3 text-base outline-none focus:border-orange-500";
-const chipCls = (on: boolean) =>
-  `min-h-11 rounded-xl px-3 text-sm font-bold transition active:scale-[0.97] ${on ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`;
 
 const LOOKS: { id: LookId; label: string }[] = [
   { id: "sticker", label: "Sticker" },
@@ -90,57 +89,15 @@ export function StickerForm(p: StickerFormProps) {
         The first three filled-in fields appear on the sticker.
       </p>
 
-      <fieldset className="flex flex-wrap gap-2">
-        <legend className="mb-1 text-sm font-semibold text-slate-700">Style</legend>
-        {LOOKS.map((l) => (
-          <button
-            key={l.id}
-            type="button"
-            aria-pressed={p.look === l.id}
-            onClick={() => p.onLook(l.id)}
-            className={chipCls(p.look === l.id)}
-          >
-            {l.label}
-          </button>
-        ))}
-      </fieldset>
+      <ChipGroup legend="Style" options={LOOKS} value={p.look} onChange={p.onLook} />
 
-      <fieldset className="flex flex-wrap gap-2">
-        <legend className="mb-1 text-sm font-semibold text-slate-700">
-          {p.look === "medal" ? "Metal" : "Colour"}
-        </legend>
-        {(p.look === "medal" ? METALS : THEMES).map((t) => {
-          const on = (p.look === "medal" ? p.metal : p.theme) === t.id;
-          return (
-            <button
-              key={t.id}
-              type="button"
-              aria-pressed={on}
-              onClick={() =>
-                p.look === "medal" ? p.onMetal(t.id as MetalId) : p.onTheme(t.id as ThemeId)
-              }
-              className={chipCls(on)}
-            >
-              {t.label}
-            </button>
-          );
-        })}
-      </fieldset>
+      {p.look === "medal" ? (
+        <ChipGroup legend="Metal" options={METALS} value={p.metal} onChange={p.onMetal} />
+      ) : (
+        <ChipGroup legend="Colour" options={THEMES} value={p.theme} onChange={p.onTheme} />
+      )}
 
-      <fieldset className="flex flex-wrap gap-2">
-        <legend className="mb-1 text-sm font-semibold text-slate-700">Shape</legend>
-        {FRAMES.map((f) => (
-          <button
-            key={f.id}
-            type="button"
-            aria-pressed={p.frame === f.id}
-            onClick={() => p.onFrame(f.id)}
-            className={chipCls(p.frame === f.id)}
-          >
-            {f.label}
-          </button>
-        ))}
-      </fieldset>
+      <ChipGroup legend="Shape" options={FRAMES} value={p.frame} onChange={p.onFrame} />
 
       <label className="flex flex-col gap-1 text-sm font-semibold text-slate-700">
         Local landmark

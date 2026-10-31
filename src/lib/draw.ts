@@ -25,7 +25,7 @@ export type StickerSpec = {
 
 export const STICKER_SIZE = 1024;
 
-const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
+export const FONT = 'system-ui, -apple-system, "Segoe UI", sans-serif';
 
 type Palette = {
   fg: string;
@@ -102,7 +102,17 @@ function drawBackground(ctx: CanvasRenderingContext2D, spec: StickerSpec, path: 
     drawMetal(ctx, path, metal, s);
     return;
   }
-  const theme = THEMES.find((t) => t.id === spec.theme) ?? THEMES[0];
+  drawThemePanel(ctx, path, spec.theme, s);
+}
+
+/** Theme gradient panel with a white sticker edge and soft drop shadow, shared with badges. */
+export function drawThemePanel(
+  ctx: CanvasRenderingContext2D,
+  path: Path2D,
+  themeId: ThemeId,
+  s: number
+) {
+  const theme = THEMES.find((t) => t.id === themeId) ?? THEMES[0];
   // white sticker edge with a soft drop shadow
   ctx.save();
   ctx.shadowColor = "rgba(0,0,0,0.35)";

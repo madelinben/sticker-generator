@@ -22,3 +22,28 @@ export function takeHandoff(): Handoff | null {
     return null;
   }
 }
+
+/** Contract the parkrun Alphabeteer uses to open the badge maker pre-filled. */
+export const BADGE_KEY = "gotc:badge-handoff";
+
+export type CellStatus = "done" | "todo" | "none";
+export type LetterCell = { letter: string; status: CellStatus; event?: string; date?: string };
+export type BadgeHandoff = {
+  /** Letter to feature; null opens the full alphabet badge */
+  letter: string | null;
+  done: number;
+  possible: number;
+  cells: LetterCell[];
+};
+
+/** Read and clear a pending badge handoff (one-shot). */
+export function takeBadge(): BadgeHandoff | null {
+  try {
+    const raw = sessionStorage.getItem(BADGE_KEY);
+    if (!raw) return null;
+    sessionStorage.removeItem(BADGE_KEY);
+    return JSON.parse(raw) as BadgeHandoff;
+  } catch {
+    return null;
+  }
+}

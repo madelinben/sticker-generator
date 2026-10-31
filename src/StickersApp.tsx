@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { BadgeForm } from "./components/BadgeForm";
 import { RouteControls } from "./components/RouteControls";
 import { type BeforeExport, StickerCanvas } from "./components/StickerCanvas";
 import { type Fields, StickerForm } from "./components/StickerForm";
-import type { LookId, StickerSpec } from "./lib/draw";
+import { drawSticker, type LookId, type StickerSpec } from "./lib/draw";
+import { type BadgeKind, drawBadge } from "./lib/drawBadge";
 import type { MetalId } from "./lib/drawMedal";
 import type { FrameId, ThemeId } from "./lib/frames";
 import { parseGpx, type TrackPoint } from "./lib/gpx";
-import { takeHandoff } from "./lib/handoff";
+import { type BadgeHandoff, takeBadge, takeHandoff } from "./lib/handoff";
 import type { LandmarkChoice } from "./lib/landmarks";
 import { DEFAULT_ROUTE, type RouteOptions } from "./lib/route3d";
 import {
@@ -51,9 +53,20 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
   const [points, setPoints] = useState<TrackPoint[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [error, setError] = useState("");
+  const [badge, setBadge] = useState<BadgeHandoff | null>(null);
+  const [badgeKind, setBadgeKind] = useState<BadgeKind>("letter");
+  const [badgeLetter, setBadgeLetter] = useState("A");
 
-  // One-shot prefill when another tool (e.g. Strava dashboard) sent us here.
+  // One-shot prefill when another tool (Strava dashboard, parkrun Alphabeteer) sent us here.
   useEffect(() => {
+    const b = takeBadge();
+    if (b) {
+      setBadge(b);
+      setBadgeKind(b.letter ? "letter" : "alphabet");
+      setBadgeLetter(b.letter ?? b.cells.find((c) => c.status === "done")?.letter ?? "A");
+      setTheme("night"); // green / red cells need a contrasting panel
+      return;
+    }
     const h = takeHandoff();
     if (!h) return;
     const s: Stats = { distanceM: h.distanceM, durationS: h.durationS, elevGainM: h.elevGainM };
@@ -102,39 +115,68 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
     };
   }, [title, fields, footer, frame, theme, look, metal, route, landmark, points, stats]);
 
+  const draw = useMemo(
+    () =>
+      badge
+        ? (c: HTMLCanvasElement) =>
+            drawBadge(c, { kind: badgeKind, badge, letter: badgeLetter, frame, theme, footer })
+        : (c: HTMLCanvasElement) => drawSticker(c, spec),
+    [badge, badgeKind, badgeLetter, frame, theme, footer, spec]
+  );
+  const fileTitle = badge
+    ? badgeKind === "letter"
+      ? `parkrun alphabeteer ${badgeLetter}`
+      : "parkrun alphabeteer"
+    : title;
+
   return (
     <div className="mx-auto grid max-w-5xl grid-cols-[minmax(0,1fr)] gap-6 bg-white p-4 md:grid-cols-2">
-      <StickerCanvas spec={spec} beforeExport={beforeExport} />
-      <div className="flex flex-col gap-4">
-        <StickerForm
-          title={title}
-          fields={fields}
-          footer={footer}
+      <StickerCanvas title={fileTitle} draw={draw} beforeExport={beforeExport} />
+      {badge ? (
+        <BadgeForm
+          kind={badgeKind}
+          letter={badgeLetter}
+          cells={badge.cells}
           frame={frame}
           theme={theme}
-          look={look}
-          metal={metal}
-          landmark={landmark}
-          hasTrack={points.length > 1}
-          error={error}
-          onTitle={setTitle}
-          onField={(k, v) => setFields((f) => ({ ...f, [k]: v }))}
-          onFooter={setFooter}
+          onKind={setBadgeKind}
+          onLetter={setBadgeLetter}
           onFrame={setFrame}
           onTheme={setTheme}
-          onLook={setLook}
-          onMetal={setMetal}
-          onLandmark={setLandmark}
-          onFile={onFile}
+          onExit={() => setBadge(null)}
         />
-        {points.length > 1 && (
-          <RouteControls
-            points={points}
-            route={route}
-            onRoute={(patch) => setRoute((r) => ({ ...r, ...patch }))}
+      ) : (
+        <div className="flex flex-col gap-4">
+          <StickerForm
+            title={title}
+            fields={fields}
+            footer={footer}
+            frame={frame}
+            theme={theme}
+            look={look}
+            metal={metal}
+            landmark={landmark}
+            hasTrack={points.length > 1}
+            error={error}
+            onTitle={setTitle}
+            onField={(k, v) => setFields((f) => ({ ...f, [k]: v }))}
+            onFooter={setFooter}
+            onFrame={setFrame}
+            onTheme={setTheme}
+            onLook={setLook}
+            onMetal={setMetal}
+            onLandmark={setLandmark}
+            onFile={onFile}
           />
-        )}
-      </div>
+          {points.length > 1 && (
+            <RouteControls
+              points={points}
+              route={route}
+              onRoute={(patch) => setRoute((r) => ({ ...r, ...patch }))}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
