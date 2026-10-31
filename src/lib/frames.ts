@@ -21,13 +21,21 @@ export const SAFE_SCALE: Record<FrameId, number> = {
   burst: 0.84,
 };
 
-export type ThemeId = "sunrise" | "ocean" | "forest" | "night";
+export type ThemeId = "sunrise" | "ocean" | "forest" | "night" | "parkrun";
 
-export const THEMES: { id: ThemeId; label: string; from: string; to: string }[] = [
+export const THEMES: {
+  id: ThemeId;
+  label: string;
+  from: string;
+  to: string;
+  /** Highlight for big badge text; white when unset */
+  accent?: string;
+}[] = [
   { id: "sunrise", label: "Sunrise", from: "#ff7a18", to: "#fc4c02" },
   { id: "ocean", label: "Ocean", from: "#2fa7e0", to: "#1b4f9c" },
   { id: "forest", label: "Forest", from: "#5cc326", to: "#14633a" },
   { id: "night", label: "Night", from: "#7c3aed", to: "#1e1b4b" },
+  { id: "parkrun", label: "parkrun", from: "#4c1a57", to: "#2b223d", accent: "#ffa300" },
 ];
 
 function assertNever(x: never): never {
@@ -84,4 +92,15 @@ export function framePath(id: FrameId, size: number, margin: number): string {
     default:
       return assertNever(id);
   }
+}
+
+/** Letters per row, spread evenly with longer rows in the middle (26 in 6 cols = 5,5,6,5,5) */
+export function rowSizes(n: number, cols: number): number[] {
+  const rows = Math.ceil(n / cols);
+  const base = Math.floor(n / rows);
+  const start = Math.floor((rows - (n % rows)) / 2);
+  return Array.from(
+    { length: rows },
+    (_, r) => base + (r >= start && r < start + (n % rows) ? 1 : 0)
+  );
 }

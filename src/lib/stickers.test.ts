@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
+import { rowSizes } from "./frames.ts";
 import { parseGpx } from "./gpx.ts";
 import { landmarkPath } from "./landmarks.ts";
 import { fitTrack, thin } from "./project.ts";
@@ -110,4 +111,10 @@ test("landmarkPath: auto picks nearest city, terrain fallback, none is null", ()
   assert.equal(landmarkPath("auto", near(53.41, -2.99)), landmarkPath("liverpool", []));
   assert.equal(landmarkPath("auto", near(54.45, -3.2, 900)), landmarkPath("mountain", []));
   assert.equal(landmarkPath("none", near(53.41, -2.99)), null);
+});
+
+test("rowSizes spreads letters evenly, longer rows in the middle", () => {
+  assert.deepEqual(rowSizes(26, 6), [5, 5, 6, 5, 5]);
+  assert.deepEqual(rowSizes(24, 6), [6, 6, 6, 6]);
+  assert.deepEqual(rowSizes(7, 6), [4, 3]);
 });

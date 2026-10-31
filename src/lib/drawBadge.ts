@@ -1,5 +1,5 @@
 import { drawThemePanel, FONT, STICKER_SIZE } from "./draw";
-import { type FrameId, framePath, SAFE_SCALE, type ThemeId } from "./frames";
+import { type FrameId, framePath, rowSizes, SAFE_SCALE, THEMES, type ThemeId } from "./frames";
 import type { BadgeHandoff, CellStatus } from "./handoff";
 
 export type BadgeKind = "letter" | "alphabet";
@@ -46,17 +46,16 @@ function cell(
   ctx.stroke();
 }
 
-/** One completed letter: big green cell, first event that completed it, date, progress */
+/** One completed letter: big letter, first event that completed it, date, progress */
 function drawLetter(ctx: CanvasRenderingContext2D, spec: BadgeSpec, s: number) {
   const c = spec.badge.cells.find((l) => l.letter === spec.letter);
-  const box = s * 0.3;
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = `800 ${s * 0.034}px ${FONT}`;
   ctx.fillText("PARKRUN ALPHABETEER", s / 2, s * 0.22, s * 0.5);
-  cell(ctx, (s - box) / 2, s * 0.27, box, box, c?.status ?? "todo", s);
+  ctx.fillStyle = THEMES.find((t) => t.id === spec.theme)?.accent ?? "#fff";
+  ctx.font = `900 ${s * 0.34}px ${FONT}`;
+  ctx.fillText(spec.letter, s / 2, s * 0.435);
   ctx.fillStyle = "#fff";
-  ctx.font = `900 ${s * 0.24}px ${FONT}`;
-  ctx.fillText(spec.letter, s / 2, s * 0.27 + box / 2 + s * 0.01);
   ctx.font = `900 ${s * 0.068}px ${FONT}`;
   ctx.fillText(c?.event ?? "Still to run", s / 2, s * 0.645, s * 0.62);
   ctx.fillStyle = "rgba(255,255,255,0.85)";
@@ -72,10 +71,14 @@ function drawLetter(ctx: CanvasRenderingContext2D, spec: BadgeSpec, s: number) {
 function drawAlphabet(ctx: CanvasRenderingContext2D, spec: BadgeSpec, s: number) {
   const cols = 6;
   const gap = s * 0.012;
-  const [x0, y0, gw, gh] = [s * 0.1, s * 0.22, s * 0.8, s * 0.64];
-  const rows = Math.ceil(spec.badge.cells.length / cols);
+  const [x0, y0, gw, gh] = [s * 0.13, s * 0.22, s * 0.74, s * 0.64];
+  const sizes = rowSizes(spec.badge.cells.length, cols);
   const w = (gw - gap * (cols - 1)) / cols;
-  const h = (gh - gap * (rows - 1)) / rows;
+  const h = (gh - gap * (sizes.length - 1)) / sizes.length;
+  // row + column of each cell, each row centred
+  const slots = sizes.flatMap((inRow, row) =>
+    Array.from({ length: inRow }, (_, col) => ({ row, col, inRow }))
+  );
 
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = `800 ${s * 0.032}px ${FONT}`;
@@ -85,10 +88,8 @@ function drawAlphabet(ctx: CanvasRenderingContext2D, spec: BadgeSpec, s: number)
   ctx.fillText(`${spec.badge.done} / ${spec.badge.possible} letters`, s / 2, s * 0.17, s * 0.6);
 
   spec.badge.cells.forEach((l, i) => {
-    const row = Math.floor(i / cols);
-    const inRow = Math.min(cols, spec.badge.cells.length - row * cols);
-    // centre a short last row (26 letters = 4 rows of 6 + 2)
-    const x = x0 + ((cols - inRow) * (w + gap)) / 2 + (i % cols) * (w + gap);
+    const { row, col, inRow } = slots[i];
+    const x = x0 + ((cols - inRow) * (w + gap)) / 2 + col * (w + gap);
     const y = y0 + row * (h + gap);
     cell(ctx, x, y, w, h, l.status, s);
     ctx.fillStyle = "#fff";
