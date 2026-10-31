@@ -1,5 +1,5 @@
 import { drawThemePanel, FONT, STICKER_SIZE } from "./draw";
-import { type FrameId, framePath, rowSizes, SAFE_SCALE, THEMES, type ThemeId } from "./frames";
+import { type FrameId, framePath, rowSizes, SAFE_SCALE, type ThemeId } from "./frames";
 import type { BadgeHandoff, CellStatus } from "./handoff";
 
 export type BadgeKind = "letter" | "alphabet";
@@ -52,10 +52,9 @@ function drawLetter(ctx: CanvasRenderingContext2D, spec: BadgeSpec, s: number) {
   ctx.fillStyle = "rgba(255,255,255,0.85)";
   ctx.font = `800 ${s * 0.034}px ${FONT}`;
   ctx.fillText("PARKRUN ALPHABETEER", s / 2, s * 0.22, s * 0.5);
-  ctx.fillStyle = THEMES.find((t) => t.id === spec.theme)?.accent ?? "#fff";
+  ctx.fillStyle = "#fff";
   ctx.font = `900 ${s * 0.34}px ${FONT}`;
   ctx.fillText(spec.letter, s / 2, s * 0.435);
-  ctx.fillStyle = "#fff";
   ctx.font = `900 ${s * 0.068}px ${FONT}`;
   ctx.fillText(c?.event ?? "Still to run", s / 2, s * 0.645, s * 0.62);
   ctx.fillStyle = "rgba(255,255,255,0.85)";

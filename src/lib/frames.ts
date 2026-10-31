@@ -23,19 +23,12 @@ export const SAFE_SCALE: Record<FrameId, number> = {
 
 export type ThemeId = "sunrise" | "ocean" | "forest" | "night" | "parkrun";
 
-export const THEMES: {
-  id: ThemeId;
-  label: string;
-  from: string;
-  to: string;
-  /** Highlight for big badge text; white when unset */
-  accent?: string;
-}[] = [
+export const THEMES: { id: ThemeId; label: string; from: string; to: string }[] = [
   { id: "sunrise", label: "Sunrise", from: "#ff7a18", to: "#fc4c02" },
   { id: "ocean", label: "Ocean", from: "#2fa7e0", to: "#1b4f9c" },
   { id: "forest", label: "Forest", from: "#5cc326", to: "#14633a" },
   { id: "night", label: "Night", from: "#7c3aed", to: "#1e1b4b" },
-  { id: "parkrun", label: "parkrun", from: "#4c1a57", to: "#2b223d", accent: "#ffa300" },
+  { id: "parkrun", label: "parkrun", from: "#4c1a57", to: "#2b223d" },
 ];
 
 function assertNever(x: never): never {

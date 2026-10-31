@@ -64,7 +64,7 @@ export function StickersApp({ beforeExport }: { beforeExport?: BeforeExport }) {
       setBadge(b);
       setBadgeKind(b.letter ? "letter" : "alphabet");
       setBadgeLetter(b.letter ?? b.cells.find((c) => c.status === "done")?.letter ?? "A");
-      setTheme("parkrun"); // parkrun purple + apricot; green / red cells contrast on it
+      setTheme("parkrun"); // parkrun purple; green / red cells contrast on it
       return;
     }
     const h = takeHandoff();
